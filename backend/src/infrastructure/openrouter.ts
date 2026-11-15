@@ -2,6 +2,7 @@ import { z } from "zod";
 import { AppError } from "@/domain/errors";
 import type { CardTranslator } from "@/domain/ports";
 import { FIELD_KEYS, type FieldKey, type Locale } from "@/domain/types";
+import { llmModels } from "./companion";
 import { env } from "./env";
 
 const LANGUAGE: Record<Locale, string> = { ru: "русский", kk: "казахский", uz: "узбекский (латиница)", en: "английский" };
@@ -9,14 +10,35 @@ const LANGUAGE: Record<Locale, string> = { ru: "русский", kk: "казах
 type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
 
 // Разговор и извлечение карточки — в companion.ts (модуль ./llm). Здесь остался только перевод.
-async function chat(messages: ChatMessage[], opts: { json?: boolean; maxTokens?: number; temperature?: number } = {}) {
+type ChatOpts = { json?: boolean; maxTokens?: number; temperature?: number };
+
+// Основная модель, при её отказе — запасная (если задана).
+async function chat(messages: ChatMessage[], opts: ChatOpts = {}) {
+  let models: string[];
+  try {
+    models = llmModels();
+  } catch (e) {
+    console.error("openrouter: не задана настройка:", e instanceof Error ? e.message : e);
+    throw new AppError("LLM_UNAVAILABLE");
+  }
+  for (const [i, model] of models.entries()) {
+    try {
+      return await chatOnce(model, messages, opts);
+    } catch (e) {
+      if (i === models.length - 1) throw e;
+    }
+  }
+  throw new AppError("LLM_UNAVAILABLE");
+}
+
+async function chatOnce(model: string, messages: ChatMessage[], opts: ChatOpts) {
   let res: Response;
   try {
     res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${env("OPENROUTER_API_KEY")}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: env("OPENROUTER_MODEL"),
+        model,
         temperature: opts.temperature ?? 0,
         max_tokens: opts.maxTokens,
         ...(opts.json && { response_format: { type: "json_object" } }),
@@ -29,7 +51,7 @@ async function chat(messages: ChatMessage[], opts: { json?: boolean; maxTokens?:
     throw new AppError("LLM_UNAVAILABLE");
   }
   if (!res.ok) {
-    console.error("openrouter: статус", res.status); // тело ответа не логируем
+    console.error(`openrouter: статус ${res.status} на модели ${model}`); // тело ответа не логируем
     throw new AppError("LLM_UNAVAILABLE");
   }
   const data = await res.json();
