@@ -10,7 +10,7 @@
     "postinstall": "prisma generate",
     "db:dev": "node scripts/dev-db.mjs",
     "create-doctor": "tsx scripts/create-doctor.ts",
-    "test": "vitest run tests/unit",
+    "test": "vitest run tests/unit && node --test src/infrastructure/llm/*.test.mjs",
     "test:e2e": "vitest run tests/e2e"
   },
   "dependencies": {

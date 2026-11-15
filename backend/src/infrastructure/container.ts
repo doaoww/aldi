@@ -1,14 +1,15 @@
 import type { Ports } from "@/domain/ports";
 import { elevenLabsVoice } from "./elevenlabs";
 import { fakePorts } from "./fakes";
-import { openRouterAssistant, openRouterExtractor, openRouterTranslator } from "./openrouter";
+import { companionAssistant, companionExtractor } from "./companion";
+import { openRouterTranslator } from "./openrouter";
 import { telegramNotifier } from "./telegram";
 
 // Единственное место, где порты связываются с конкретными сервисами.
 // Сменить модель или голосового провайдера = новый адаптер + одна строка здесь.
 const realPorts: Ports = {
-  assistant: openRouterAssistant,
-  extractor: openRouterExtractor,
+  assistant: companionAssistant,
+  extractor: companionExtractor,
   translator: openRouterTranslator,
   voice: elevenLabsVoice,
   notifier: telegramNotifier,

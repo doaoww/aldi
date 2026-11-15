@@ -26,7 +26,7 @@ const RULES: Record<Locale, Rules> = {
     ["fever", /(қызу|ыстығ)\S*\s*(38|39|40)|қалтыра/],
     ["neuro", /бас\S*\s+қатты\s+ауыр|көз\S*\s+бұлдыр|көзім\s+көрмей|құрысу/],
     ["chest", /кеуде\S*\s+ауыр|дем\s+ала\s+алма|тыныс\S*\s+тарыл/],
-    ["self_harm", /өмір\s+сүргім\s+келме|өзіме\s+зиян|балама\s+зиян|өлгім\s+кел/],
+    ["self_harm", /өмір\s+сүргім\s+келме|өзіме\s+зиян|балама\s+зиян|өлгім\s+кел|өзімді\s+ұстай\s+алма/],
   ],
   uz: [
     ["bleeding", /qon\s+ket|kuchli\s+qon|prokladka\S*\s+(bir\s+)?soat/],
@@ -34,6 +34,12 @@ const RULES: Record<Locale, Rules> = {
     ["neuro", /bosh\S*\s+qattiq\s+og'ri|ko'z\S*\s+xira|ko'rmayap|tutqanoq/],
     ["chest", /ko'krak\S*\s+og'ri|nafas\s+ololmay|nafas\s+qis/],
     ["self_harm", /yashagim\s+kelmay|o'zimga\s+zarar|bolamga\s+zarar|o'lgim\s+kel/],
+    // Узбекский кириллицей: интерфейс на латинице, но писать кириллицей не запрещаем.
+    ["bleeding", /қон\S*\s+(\S+\s+){0,2}кет|кучли\s+қон|прокладка\S*\s+(\S+\s+){0,2}(тўл|соат)/],
+    ["fever", /(ҳарорат|иситма)\S*\s*(38|39|40)|қалтира/],
+    ["neuro", /бош\S*\s+қаттиқ\s+оғри|кўз\S*\s+хира|тутқаноқ/],
+    ["chest", /кўкрак\S*\s+оғри|нафас\s+ололма|нафас\s+қис/],
+    ["self_harm", /яшагим\s+келма|ўзимга\s+зарар|боламга\s+зарар|ўлгим\s+кел/],
   ],
 };
 
